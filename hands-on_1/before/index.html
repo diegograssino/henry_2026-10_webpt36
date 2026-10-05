@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Temperatura</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Conversor de Temperatura Editado</h1>
+        <div class="converter">
+            <div class="input-group">
+                <label for="celsius">Celsius</label>
+                <input type="number" id="celsius" placeholder="0">
+                <span class="unit">°C</span>
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="output-group">
+                <label>Fahrenheit</label>
+                <div class="result">
+                    <span id="fahrenheit">32</span>
+                    <span class="unit">°F</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="formula">
+            Formula: °F = (°C × 9/5) + 32
+        </div>
+    </div>
+    <script src="app.js"></script>
+    <script src="injection.js"></script>
+
+</body>
+
+</html>
