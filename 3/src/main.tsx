@@ -8,7 +8,7 @@ createRoot(document.getElementById("root")!).render(
     <App />
     {/* Esto es el equivalente a llamar la funcion App y que nos de lo que retorne, es SIMPLENTE OTRA FORMA DE ESCRIBIRLO (en JSX)
 
-      App( a, b )
+      App( 1, 2 )
       <App a={1} b={2}/>
 
     function App() {

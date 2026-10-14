@@ -1,0 +1,28 @@
+.counter-status {
+  text-align: center;
+}
+
+.counter-value {
+  font-size: 48px;
+  font-weight: 700;
+  margin: 8px 0;
+  color: var(--text-h);
+}
+
+.status-message {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 4px 0;
+}
+
+.status-positive {
+  color: #22c55e;
+}
+
+.status-negative {
+  color: #f87171;
+}
+
+.status-zero {
+  color: var(--text);
+}
