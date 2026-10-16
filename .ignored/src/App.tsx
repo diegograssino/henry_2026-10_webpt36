@@ -1,65 +1,99 @@
-import { useState } from "react";
-import type { MouseEvent } from "react";
-import "./App.css";
-import { CounterControls } from "./components/CounterControls/CounterControls";
-import { CounterStatus } from "./components/CounterStatus/CounterStatus";
+/**
+ * Clase 4 — useEffect
+ *
+ * Demos 1 y 2 viven en este archivo. Los Demos 3 y 4 están separados:
+ *   ./Persistent.tsx  → input + localStorage
+ *   ./InfiniteLoop.tsx → loop infinito (comentado)
+ */
+import { useEffect, useState } from "react";
+import InfiniteLoop from "./InfiniteLoop";
+import Persistent from "./Persistent";
 
-const MIN_COUNT = -10;
-const MAX_COUNT = 20;
+export default function App() {
+  const [counter, setCounter] = useState(0);
+  const [isFirstRender, setIsFirstRender] = useState(true);
 
-function App() {
-  const [count, setCount] = useState<number>(0);
-  const [step, setStep] = useState<number>(1);
+  // ③ Sin deps → corre en cada render
+  useEffect(() => {
+    console.log("------------------");
+    console.log("useEffect without deps");
+    console.log("New render");
+  });
 
-  const canIncrement = count + step <= MAX_COUNT;
-  const canDecrement = count - step >= MIN_COUNT;
+  // ① Deps [] → corre SOLO al montar (1ª vez)
+  useEffect(() => {
+    const effect = () => {
+      console.log("Se ejecuta el effect");
+      setIsFirstRender(false);
+    };
 
-  // Named event handlers tipados con React.MouseEvent<HTMLButtonElement>
-  const handleIncrement = (e: MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    if (!canIncrement) return;
-    setCount((prev) => prev + step);
-  };
+    console.log("------------------");
+    console.log("useEffect with [] in deps");
+    if (isFirstRender) {
+      effect();
+    }
+  }, []);
 
-  const handleDecrement = (e: MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    if (!canDecrement) return;
-    setCount((prev) => prev - step);
-  };
+  // ② Deps [counter] → corre solo cuando counter cambia
+  useEffect(() => {
+    console.log("------------------");
+    console.log("useEffect with [counter] in deps");
+    console.log("counter: ", counter);
+  }, [counter]);
 
-  const handleReset = (e: MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setCount(0);
-  };
+  const [jumping, setJumping] = useState(false);
+  const [speed, setSpeed] = useState(1000); // ms
 
-  const handleStepChange = (newStep: number) => {
-    setStep(newStep);
-  };
+  useEffect(() => {
+    console.log("------------------");
+    if (!jumping) return;
+    const id = setInterval(() => {
+      console.log("tick id =", id);
+    }, speed);
+    console.log("New interval id", id);
+
+    // 🔓 Descomentar el return para que el cleanup funcione:
+    return () => {
+      console.log("------------------");
+      console.log("Killing interval id", id);
+      clearInterval(id);
+    };
+  }, [jumping, speed]);
 
   return (
-    <section id="center">
-      <div>
-        <h1>Contador Interactivo</h1>
-        <p>
-          Límites: Min ({MIN_COUNT}) | Max ({MAX_COUNT})
-        </p>
-      </div>
+    <main>
+      <h1>useEffect</h1>
+      <p>Abrí la consola del navegador para ver los logs.</p>
 
-      {/* Componente que muestra el estado actual */}
-      <CounterStatus count={count} />
+      <p>
+        counter = <strong>{counter}</strong> · isFirstRender ={" "}
+        <strong>{String(isFirstRender)}</strong>
+      </p>
 
-      {/* Componente con los controles del contador */}
-      <CounterControls
-        onIncrement={handleIncrement}
-        onDecrement={handleDecrement}
-        onReset={handleReset}
-        step={step}
-        onStepChange={handleStepChange}
-        canIncrement={canIncrement}
-        canDecrement={canDecrement}
-      />
-    </section>
+      <button onClick={() => setCounter((c) => c + 1)}>+1</button>
+
+      <br />
+      <br />
+
+      <button onClick={() => setJumping((r) => !r)}>
+        {jumping ? "Parar" : "Empezar"}
+      </button>
+      <button
+        onClick={() => setSpeed((s) => (s === 1000 ? 500 : 1000))}
+        disabled={!jumping}
+      >
+        Cambiar velocidad ({speed}ms)
+      </button>
+
+      <br />
+      <br />
+
+      <Persistent />
+
+      <br />
+      <br />
+
+      <InfiniteLoop />
+    </main>
   );
 }
-
-export default App;
