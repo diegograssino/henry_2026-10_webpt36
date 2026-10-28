@@ -16,8 +16,8 @@ export default defineConfig([
       reactRefresh.configs.vite,
     ],
     rules: {
-      // FASE 3 - allowExportNames: permite que useAuth se exporte junto al
-      // AuthProvider en el mismo archivo (src/context/AuthContext.tsx)
+      // allowExportNames: permite que useAuth se exporte junto al
+      // AuthProvider en el mismo archivo (src/contexts/AuthContext.tsx)
       'react-refresh/only-export-components': ['error', {
         allowConstantExport: true,
         allowCompoundComponents: true,

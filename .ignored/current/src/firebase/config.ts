@@ -1,8 +1,10 @@
-// FASE 1 - Importar funciones del SDK de Firebase
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-// FASE 1 - Configuración del proyecto leída desde variables de entorno (.env)
+// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -12,11 +14,9 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-// FASE 1 - Inicializar Firebase con la configuración del proyecto
+// Initialize Firebase
 export const app = initializeApp(firebaseConfig);
-
-// FASE 1 - Inicializar el servicio de autenticación
+// Este objeto sera la auth con user y pass
 export const auth = getAuth(app);
-
-// FASE 1 - Inicializar el proveedor de Google (para login con popup en Fase 2)
+// This object will be the one we use for the google login
 export const googleProvider = new GoogleAuthProvider();

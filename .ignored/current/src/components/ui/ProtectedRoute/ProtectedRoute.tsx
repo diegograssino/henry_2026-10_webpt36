@@ -1,15 +1,31 @@
-import { Navigate, Outlet, useLocation } from "react-router";
-// FASE 4 - El guard consulta el estado de sesión al Context
-import { useAuth } from "../../../context/AuthContext.tsx";
+import { useEffect, useState } from "react";
+import { Navigate, Outlet } from "react-router";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../../firebase/config";
 
 const ProtectedRoute = () => {
-  // FASE 4 - Única fuente de verdad: el Context
-  const { isAuthenticated } = useAuth();
-  const location = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  // FASE 4 - Sin sesión: redirigir guardando el destino
+  // Listener propio del guard: espera a que Firebase responda si hay sesion
+  // antes de decidir si redirige o deja pasar
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setIsAuthenticated(Boolean(currentUser));
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  // Todavia no sabemos si hay sesion: todavia no redirigir
+  if (loading) {
+    return <p>Cargando...</p>;
+  }
+
+  // Sin sesion: mandar al login
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return <Outlet />;

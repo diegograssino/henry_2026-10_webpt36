@@ -1,8 +1,10 @@
-import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { auth, googleProvider } from "../../../firebase/config";
+import { toast } from "react-toastify";
+import Button from "../../../components/ui/Button/Button";
+import { login, loginWithGoogle } from "../../../helpers/auth";
 import { getAuthErrorMessage } from "../../../helpers/errors";
+import { delayNavigate } from "../../../helpers/navigation";
 import { validateEmail, validatePassword } from "../../../helpers/validations";
 import type {
   LoginFormErrors,
@@ -67,14 +69,14 @@ export const LoginForm: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
-      alert(`Logueado con éxito:\nEmail: ${values.email}`);
+      await login(values.email, values.password);
+      toast.success(`Logueado con éxito:\nEmail: ${values.email}`);
       setValues(INITIAL_VALUES);
       setTouched(INITIAL_TOUCHED);
       setErrors(INITIAL_ERRORS);
-      navigate("/");
+      await delayNavigate(navigate, "/");
     } catch (error) {
-      alert(getAuthErrorMessage(error));
+      toast.error(getAuthErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }
@@ -83,11 +85,11 @@ export const LoginForm: React.FC = () => {
   const handleGoogleSignIn = async () => {
     try {
       setIsGoogleLoading(true);
-      await signInWithPopup(auth, googleProvider);
-      alert(`Logueado con éxito con Google`);
-      navigate("/");
+      await loginWithGoogle();
+      toast.success("Logueado con éxito con Google");
+      await delayNavigate(navigate, "/");
     } catch (error) {
-      alert(getAuthErrorMessage(error));
+      toast.error(getAuthErrorMessage(error));
     } finally {
       setIsGoogleLoading(false);
     }
@@ -140,20 +142,21 @@ export const LoginForm: React.FC = () => {
         </div>
         <br />
 
-        <button
+        <Button
           type="submit"
           disabled={isFormInvalid || isSubmitting || isGoogleLoading}
         >
           {isSubmitting ? "Enviando..." : "Ingresar"}
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
+          variant="google"
           onClick={handleGoogleSignIn}
           disabled={isGoogleLoading || isSubmitting}
         >
           {isGoogleLoading ? "Cargando..." : "Ingresar con Google"}
-        </button>
+        </Button>
       </form>
 
       <p>

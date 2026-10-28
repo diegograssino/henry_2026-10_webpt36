@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Creo el hook custom
+// Creo el hook custom, ayuda a "ver" cuando no esta el provider en su lugar
 export const useAuth = (): AuthContextValue => {
   const context = useContext(AuthContext);
 

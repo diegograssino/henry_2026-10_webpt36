@@ -6,7 +6,6 @@ import "./layout.css";
 const Layout = () => {
   return (
     <div className="layout-container">
-      {/* FASE 3 - El Navbar ya no necesita recibir isAuthenticated por props */}
       <Navbar />
       <main>
         <Outlet />

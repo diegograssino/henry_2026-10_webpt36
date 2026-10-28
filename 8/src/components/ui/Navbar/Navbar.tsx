@@ -1,28 +1,34 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useAuth } from "../../../contexts/AuthContext.tsx";
+import Button from "../Button/Button";
 import "./Navbar.css";
 
 const Navbar = () => {
   const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <header className="navbar">
       <nav>
         <ul className="navbar-links">
           <li>
-            <Link to="/">Home</Link>
+            <Link to="/">Inicio</Link>
           </li>
           <li>
-            <Link to="/protected">Protected</Link>
+            <Link to="/protected">Protegido</Link>
           </li>
         </ul>
       </nav>
 
       <div>
         {isAuthenticated ? (
-          <button onClick={logout}>Cerrar sesion</button>
+          <Button variant="danger" onClick={() => void logout()}>
+            Cerrar sesión
+          </Button>
         ) : (
-          <Link to="/login">Iniciar sesión</Link>
+          <Button variant="default" onClick={() => navigate("/login")}>
+            Iniciar sesión
+          </Button>
         )}
       </div>
     </header>

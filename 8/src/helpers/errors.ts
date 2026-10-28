@@ -13,4 +13,6 @@ export const getAuthErrorMessage = (error: unknown): string => {
   if (error instanceof FirebaseError) {
     return ERROR_MESSAGES[error.code] || DEFAULT_MESSAGE;
   }
+
+  return DEFAULT_MESSAGE;
 };

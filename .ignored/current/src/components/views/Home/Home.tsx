@@ -1,20 +1,14 @@
-// FASE 3 - Home consume el estado de sesión del Context
-import { useAuth } from "../../../context/AuthContext.tsx";
+import { useAuth } from "../../../contexts/AuthContext.tsx";
 
 const Home = () => {
   const { user, isAuthenticated } = useAuth();
 
   return (
     <div>
-      <h1>Home</h1>
+      <h1>Inicio</h1>
       <p>Bienvenido a la aplicación de demostración de Autenticación.</p>
 
-      {/* FASE 3 - El estado de sesión llega desde el Context, sin props */}
-      {isAuthenticated ? (
-        <p>Sesión activa: {user?.email}</p>
-      ) : (
-        <p>No hay sesión activa.</p>
-      )}
+      {isAuthenticated && <p>Sesión activa: {user?.email}</p>}
     </div>
   );
 };

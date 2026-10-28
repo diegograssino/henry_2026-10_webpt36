@@ -1,85 +1,32 @@
 import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
-// FASE 2 - Importar función de login con email/password de Firebase
-import { signInWithPopup } from "firebase/auth";
-// FASE 2 - Importar instancias de auth y googleProvider configuradas en Fase 1
-import { auth, googleProvider } from "../../../firebase/config";
-// FASE 3 - El login se hace a través del Context
-import { useAuth } from "../../../context/AuthContext.tsx";
-// FASE 5 - Función que traduce el error de Firebase a un mensaje en español
-import { getAuthErrorMessage } from "../../../utils/firebaseErrors.ts";
-
-export interface LoginFormValues {
-  email: string;
-  password: string;
-}
-
-export interface LoginFormErrors {
-  email: string | null;
-  password: string | null;
-}
-
-export interface LoginFormTouched {
-  email: boolean;
-  password: boolean;
-}
-
-const INITIAL_VALUES: LoginFormValues = {
-  email: "",
-  password: "",
-};
-
-const INITIAL_ERRORS: LoginFormErrors = {
-  email: null,
-  password: null,
-};
-
-const INITIAL_TOUCHED: LoginFormTouched = {
-  email: false,
-  password: false,
-};
-
-const validateEmail = (value: string): string | null => {
-  if (!value.trim()) {
-    return "El email es requerido";
-  }
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(value)) {
-    return "El formato de email no es válido";
-  }
-  return null;
-};
-
-const validatePassword = (value: string): string | null => {
-  if (!value) {
-    return "La contraseña es requerida";
-  }
-  if (value.length < 6) {
-    return "La contraseña debe tener al menos 6 caracteres";
-  }
-  return null;
-};
+import { Link, useNavigate } from "react-router";
+import { toast } from "react-toastify";
+import Button from "../../../components/ui/Button/Button";
+import { login, loginWithGoogle } from "../../../helpers/auth";
+import { getAuthErrorMessage } from "../../../helpers/errors";
+import { delayNavigate } from "../../../helpers/navigation";
+import { validateEmail, validatePassword } from "../../../helpers/validations";
+import type {
+  LoginFormErrors,
+  LoginFormTouched,
+  LoginFormValues,
+} from "../../../types/types";
+import {
+  INITIAL_ERRORS,
+  INITIAL_TOUCHED,
+  INITIAL_VALUES,
+} from "./LoginForm.const";
 
 export const LoginForm: React.FC = () => {
+  const navigate = useNavigate();
   const [values, setValues] = useState<LoginFormValues>(INITIAL_VALUES);
   const [errors, setErrors] = useState<LoginFormErrors>(INITIAL_ERRORS);
   const [touched, setTouched] = useState<LoginFormTouched>(INITIAL_TOUCHED);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  // FASE 2 - Estado separado para el login con Google, para no mezclar el
-  // texto del botón del form con el del popup
   const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false);
-  // FASE 2 - Hook de navegación para redirigir tras el login exitoso
-  const navigate = useNavigate();
-  // FASE 4 - Hook de ubicación: guarda la ruta de destino cuando el guard redirige
-  const location = useLocation();
-  // FASE 3 - El login se pide al Context
-  const { login } = useAuth();
-
-  // FASE 4 - Destino al que volver después del login (lo pasó el guard)
-  const from = (location.state as { from?: Location })?.from;
 
   const isFormInvalid = Boolean(
-    validateEmail(values.email) || validatePassword(values.password)
+    validateEmail(values.email) || validatePassword(values.password),
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,34 +69,28 @@ export const LoginForm: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // FASE 3 - Autenticar al usuario con email y contraseña a través del Context
       await login(values.email, values.password);
-
-      // FASE 4 - Volver a la ruta de destino (o al inicio si no hubo redirect)
-      navigate(from?.pathname ?? "/");
+      toast.success(`Logueado con éxito:\nEmail: ${values.email}`);
+      setValues(INITIAL_VALUES);
+      setTouched(INITIAL_TOUCHED);
+      setErrors(INITIAL_ERRORS);
+      await delayNavigate(navigate, "/");
     } catch (error) {
-      console.error("Error en el login:", error);
-      // FASE 5 - Mostrar el mensaje según el código de error de Firebase
-      alert(getAuthErrorMessage(error));
+      toast.error(getAuthErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // FASE 2 - Handler para login con Google via popup
   const handleGoogleSignIn = async () => {
-    setIsGoogleLoading(true);
-
     try {
-      await signInWithPopup(auth, googleProvider);
-      // FASE 4 - Volver a la ruta de destino (o al inicio si no hubo redirect)
-      navigate(from?.pathname ?? "/");
+      setIsGoogleLoading(true);
+      await loginWithGoogle();
+      toast.success("Logueado con éxito con Google");
+      await delayNavigate(navigate, "/");
     } catch (error) {
-      console.error("Error en el login con Google:", error);
-      // FASE 5 - Mostrar el mensaje según el código de error de Firebase
-      alert(getAuthErrorMessage(error));
+      toast.error(getAuthErrorMessage(error));
     } finally {
-      // FASE 2 - Liberar el botón también cuando el login con Google falla
       setIsGoogleLoading(false);
     }
   };
@@ -201,20 +142,22 @@ export const LoginForm: React.FC = () => {
         </div>
         <br />
 
-        <button type="submit" disabled={isFormInvalid || isSubmitting}>
-          {isSubmitting ? "Ingresando..." : "Ingresar"}
-        </button>
-      </form>
+        <Button
+          type="submit"
+          disabled={isFormInvalid || isSubmitting || isGoogleLoading}
+        >
+          {isSubmitting ? "Enviando..." : "Ingresar"}
+        </Button>
 
-      {/* FASE 2 - Botón alternativo de login con Google */}
-      <hr />
-      <button
-        type="button"
-        onClick={handleGoogleSignIn}
-        disabled={isSubmitting || isGoogleLoading}
-      >
-        {isGoogleLoading ? "Conectando con Google..." : "Iniciar sesión con Google"}
-      </button>
+        <Button
+          type="button"
+          variant="google"
+          onClick={handleGoogleSignIn}
+          disabled={isGoogleLoading || isSubmitting}
+        >
+          {isGoogleLoading ? "Cargando..." : "Ingresar con Google"}
+        </Button>
+      </form>
 
       <p>
         ¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link>

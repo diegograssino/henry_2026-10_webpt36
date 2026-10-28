@@ -1,5 +1,14 @@
+import { useAuth } from "../../../contexts/AuthContext.tsx";
+
 const Protected = () => {
-  return <h1>Protected</h1>;
+  const { user } = useAuth();
+
+  return (
+    <div>
+      <h1>Protegido</h1>
+      <p>Sesión activa: {user?.email}</p>
+    </div>
+  );
 };
 
 export default Protected;

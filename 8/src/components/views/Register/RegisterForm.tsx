@@ -1,8 +1,10 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { auth } from "../../../firebase/config";
+import { toast } from "react-toastify";
+import Button from "../../../components/ui/Button/Button";
+import { register } from "../../../helpers/auth";
 import { getAuthErrorMessage } from "../../../helpers/errors";
+import { delayNavigate } from "../../../helpers/navigation";
 import { validateEmail, validatePassword } from "../../../helpers/validations";
 import type {
   RegisterFormErrors,
@@ -67,14 +69,14 @@ export const RegisterForm: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      await createUserWithEmailAndPassword(auth, values.email, values.password);
-      alert(`Registro con éxito:\nEmail: ${values.email}`);
+      await register(values.email, values.password);
+      toast.success(`Registro con éxito:\nEmail: ${values.email}`);
       setValues(INITIAL_VALUES);
       setTouched(INITIAL_TOUCHED);
       setErrors(INITIAL_ERRORS);
-      navigate("/login");
+      await delayNavigate(navigate, "/login");
     } catch (error) {
-      alert(getAuthErrorMessage(error));
+      toast.error(getAuthErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }
@@ -127,9 +129,9 @@ export const RegisterForm: React.FC = () => {
         </div>
         <br />
 
-        <button type="submit" disabled={isFormInvalid || isSubmitting}>
+        <Button type="submit" disabled={isFormInvalid || isSubmitting}>
           {isSubmitting ? "Registrando..." : "Registrarme"}
-        </button>
+        </Button>
       </form>
 
       <p>
